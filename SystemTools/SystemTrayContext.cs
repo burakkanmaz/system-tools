@@ -23,7 +23,7 @@ public class SystemTrayContext : ApplicationContext
 
         _trayIcon = new NotifyIcon()
         {
-            Icon = new Icon("icon.ico"),
+            Icon = new Icon(Path.Combine(AppContext.BaseDirectory, "icon.ico")),
             ContextMenuStrip = BuildContextMenu(),
             Visible = true,
             Text = "SystemTools"
