@@ -11,12 +11,38 @@ namespace SystemTools
         [STAThread]
         static void Main()
         {
-            LoadSettings();
-            ConfigureLogging();
-            EnsureStartupEntry();
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SystemTrayContext());
+            try
+            {
+                LoadSettings();
+                ConfigureLogging();
+                ConfigureExceptionHandling();
+                EnsureStartupEntry();
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new SystemTrayContext());
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Unhandled exception occurred in Main");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+        }
+
+        private static void ConfigureExceptionHandling()
+        {
+            Application.ThreadException += (sender, args) =>
+            {
+                Log.Error(args.Exception, "Unhandled UI thread exception");
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                var ex = args.ExceptionObject as Exception;
+                Log.Error(ex, "Unhandled non-UI thread exception");
+            };
         }
 
         private static void LoadSettings()
